@@ -1,0 +1,52 @@
+.directory {
+  width: min(100% - 2rem, 70rem);
+  margin-inline: auto;
+  padding-block: 2rem;
+}
+
+.directory__header {
+  margin-bottom: 2rem;
+}
+
+.directory__header h1 {
+  margin: 0 0 0.5rem;
+}
+
+.people-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  gap: 1rem;
+}
+
+.person-card {
+  padding: 1.25rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.75rem;
+  background: #ffffff;
+}
+
+.person-card h2 {
+  margin: 0 0 1rem;
+  font-size: 1.25rem;
+}
+
+.person-card__details {
+  display: flex;
+  gap: 2rem;
+  margin: 0;
+}
+
+.person-card__details div {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.person-card__details dt {
+  color: #4b5563;
+  font-size: 0.875rem;
+}
+
+.person-card__details dd {
+  margin: 0;
+  font-weight: 700;
+}
