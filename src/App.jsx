@@ -22,7 +22,7 @@ function App() {
   const [sortBy, setSortBy] = useState('iq-desc')
 
   const deleteButtonRefs = useRef(new Map())
-  const pendingFocusId = useRef(null)
+  const pendingFocusTarget = useRef({ type: 'none', id: null })
   const resetButtonRef = useRef(null)
 
   const normalizedSearchTerm = searchTerm.trim().toLowerCase()
@@ -53,21 +53,25 @@ function App() {
   })
 
   useLayoutEffect(() => {
-  const targetId = pendingFocusId.current
+  const pendingTarget = pendingFocusTarget.current
 
-  if (targetId === null) {
+  if (pendingTarget.type === 'none') {
     return
   }
 
-  const targetButton = deleteButtonRefs.current.get(targetId)
+  if (pendingTarget.type === 'person') {
+    const targetButton = deleteButtonRefs.current.get(pendingTarget.id)
 
-  if (targetButton) {
-    targetButton.focus()
+    if (targetButton) {
+      targetButton.focus()
+    } else {
+      resetButtonRef.current?.focus()
+    }
   } else {
     resetButtonRef.current?.focus()
   }
 
-  pendingFocusId.current = null
+  pendingFocusTarget.current = { type: 'none', id: null }
 }, [people])
 
   function handleDelete(personId) {
@@ -78,7 +82,9 @@ function App() {
   const nextPerson =
     sortedPeople[currentIndex + 1] ?? sortedPeople[currentIndex - 1]
 
-  pendingFocusId.current = nextPerson?.id ?? null
+  pendingFocusTarget.current = nextPerson
+    ? { type: 'person', id: nextPerson.id }
+    : { type: 'reset', id: null }
 
   setPeople((currentPeople) =>
     currentPeople.filter((person) => person.id !== personId),
