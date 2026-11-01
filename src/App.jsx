@@ -1,4 +1,4 @@
-import { useId, useState } from 'react'
+import { useId, useLayoutEffect, useRef, useState } from 'react'
 import './App.css'
 
 const SMART_PEOPLE = [
@@ -15,10 +15,15 @@ function App() {
   const minIqInputId = useId()
   const sortSelectId = useId()
 
+  
   const [people, setPeople] = useState(SMART_PEOPLE)
   const [searchTerm, setSearchTerm] = useState('')
   const [minIQ, setMinIQ] = useState(Number.NaN)
   const [sortBy, setSortBy] = useState('iq-desc')
+
+  const deleteButtonRefs = useRef(new Map())
+  const pendingFocusId = useRef(null)
+  const resetButtonRef = useRef(null)
 
   const normalizedSearchTerm = searchTerm.trim().toLowerCase()
 
@@ -47,11 +52,38 @@ function App() {
     }
   })
 
-  function handleDelete(personId) {
-    setPeople((currentPeople) =>
-      currentPeople.filter((person) => person.id !== personId),
-    )
+  useLayoutEffect(() => {
+  const targetId = pendingFocusId.current
+
+  if (targetId === null) {
+    return
   }
+
+  const targetButton = deleteButtonRefs.current.get(targetId)
+
+  if (targetButton) {
+    targetButton.focus()
+  } else {
+    resetButtonRef.current?.focus()
+  }
+
+  pendingFocusId.current = null
+}, [people])
+
+  function handleDelete(personId) {
+  const currentIndex = sortedPeople.findIndex(
+    (person) => person.id === personId,
+  )
+
+  const nextPerson =
+    sortedPeople[currentIndex + 1] ?? sortedPeople[currentIndex - 1]
+
+  pendingFocusId.current = nextPerson?.id ?? null
+
+  setPeople((currentPeople) =>
+    currentPeople.filter((person) => person.id !== personId),
+  )
+}
 
   function handleReset() {
     setPeople(SMART_PEOPLE)
@@ -117,9 +149,13 @@ function App() {
             {sortedPeople.length} {resultLabel}
           </p>
 
-          <button type="button" onClick={handleReset}>
-            Reset directory
-          </button>
+          <button
+  ref={resetButtonRef}
+  type="button"
+  onClick={handleReset}
+>
+  Reset directory
+</button>
         </div>
 
         <div className="people-list">
@@ -139,13 +175,20 @@ function App() {
               </dl>
 
               <button
-                className="person-card__delete"
-                type="button"
-                onClick={() => handleDelete(person.id)}
-                aria-label={`Delete ${person.name}`}
-              >
-                Delete
-              </button>
+  ref={(element) => {
+    if (element) {
+      deleteButtonRefs.current.set(person.id, element)
+    } else {
+      deleteButtonRefs.current.delete(person.id)
+    }
+  }}
+  className="person-card__delete"
+  type="button"
+  onClick={() => handleDelete(person.id)}
+  aria-label={`Delete ${person.name}`}
+>
+  Delete
+</button>
             </article>
           ))}
         </div>
