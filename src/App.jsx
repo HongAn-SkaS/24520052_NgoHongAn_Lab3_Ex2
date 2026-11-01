@@ -1,3 +1,4 @@
+import { useId, useState } from 'react'
 import './App.css'
 
 const SMART_PEOPLE = [
@@ -10,6 +11,24 @@ const SMART_PEOPLE = [
 ]
 
 function App() {
+  const searchInputId = useId()
+  const minIqInputId = useId()
+
+  const [searchTerm, setSearchTerm] = useState('')
+  const [minIQ, setMinIQ] = useState(Number.NaN)
+
+  const normalizedSearchTerm = searchTerm.trim().toLowerCase()
+
+  const filteredPeople = SMART_PEOPLE.filter((person) => {
+    const matchesName = person.name
+      .toLowerCase()
+      .includes(normalizedSearchTerm)
+
+    const matchesIQ = Number.isNaN(minIQ) || person.iq >= minIQ
+
+    return matchesName && matchesIQ
+  })
+
   return (
     <main className="directory">
       <header className="directory__header">
@@ -17,11 +36,38 @@ function App() {
         <p>Explore a directory of notable scientists and pioneers.</p>
       </header>
 
+      <section className="directory__controls" aria-label="Directory filters">
+        <div className="form-field">
+          <label htmlFor={searchInputId}>Search by name</label>
+          <input
+            id={searchInputId}
+            type="search"
+            value={searchTerm}
+            placeholder="Enter a name"
+            onChange={(event) => setSearchTerm(event.currentTarget.value)}
+          />
+        </div>
+
+        <div className="form-field">
+          <label htmlFor={minIqInputId}>Minimum IQ</label>
+          <input
+            id={minIqInputId}
+            type="number"
+            min="0"
+            value={Number.isNaN(minIQ) ? '' : minIQ}
+            placeholder="Any IQ"
+            onChange={(event) =>
+              setMinIQ(event.currentTarget.valueAsNumber)
+            }
+          />
+        </div>
+      </section>
+
       <section
         className="people-list"
         aria-label="Scientist and pioneer profiles"
       >
-        {SMART_PEOPLE.map((person) => (
+        {filteredPeople.map((person) => (
           <article className="person-card" key={person.id}>
             <h2>{person.name}</h2>
 
