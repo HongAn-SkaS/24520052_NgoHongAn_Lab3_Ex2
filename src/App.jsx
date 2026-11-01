@@ -13,13 +13,16 @@ const SMART_PEOPLE = [
 function App() {
   const searchInputId = useId()
   const minIqInputId = useId()
+  const sortSelectId = useId()
 
+  const [people, setPeople] = useState(SMART_PEOPLE)
   const [searchTerm, setSearchTerm] = useState('')
   const [minIQ, setMinIQ] = useState(Number.NaN)
+  const [sortBy, setSortBy] = useState('iq-desc')
 
   const normalizedSearchTerm = searchTerm.trim().toLowerCase()
 
-  const filteredPeople = SMART_PEOPLE.filter((person) => {
+  const filteredPeople = people.filter((person) => {
     const matchesName = person.name
       .toLowerCase()
       .includes(normalizedSearchTerm)
@@ -28,6 +31,37 @@ function App() {
 
     return matchesName && matchesIQ
   })
+
+  const sortedPeople = filteredPeople.toSorted((personA, personB) => {
+    switch (sortBy) {
+      case 'iq-asc':
+        return personA.iq - personB.iq
+      case 'iq-desc':
+        return personB.iq - personA.iq
+      case 'age-asc':
+        return personA.age - personB.age
+      case 'age-desc':
+        return personB.age - personA.age
+      default:
+        return 0
+    }
+  })
+
+  function handleDelete(personId) {
+    setPeople((currentPeople) =>
+      currentPeople.filter((person) => person.id !== personId),
+    )
+  }
+
+  function handleReset() {
+    setPeople(SMART_PEOPLE)
+    setSearchTerm('')
+    setMinIQ(Number.NaN)
+    setSortBy('iq-desc')
+  }
+
+  const resultLabel =
+    sortedPeople.length === 1 ? 'person found' : 'people found'
 
   return (
     <main className="directory">
@@ -61,28 +95,66 @@ function App() {
             }
           />
         </div>
+
+        <div className="form-field">
+          <label htmlFor={sortSelectId}>Sort by</label>
+          <select
+            id={sortSelectId}
+            value={sortBy}
+            onChange={(event) => setSortBy(event.currentTarget.value)}
+          >
+            <option value="iq-desc">IQ: High to Low</option>
+            <option value="iq-asc">IQ: Low to High</option>
+            <option value="age-desc">Age: Oldest First</option>
+            <option value="age-asc">Age: Youngest First</option>
+          </select>
+        </div>
       </section>
 
-      <section
-        className="people-list"
-        aria-label="Scientist and pioneer profiles"
-      >
-        {filteredPeople.map((person) => (
-          <article className="person-card" key={person.id}>
-            <h2>{person.name}</h2>
+      <section className="directory__results" aria-label="Directory results">
+        <div className="directory__toolbar">
+          <p role="status" aria-live="polite">
+            {sortedPeople.length} {resultLabel}
+          </p>
 
-            <dl className="person-card__details">
-              <div>
-                <dt>Age</dt>
-                <dd>{person.age}</dd>
-              </div>
-              <div>
-                <dt>IQ</dt>
-                <dd>{person.iq}</dd>
-              </div>
-            </dl>
-          </article>
-        ))}
+          <button type="button" onClick={handleReset}>
+            Reset directory
+          </button>
+        </div>
+
+        <div className="people-list">
+          {sortedPeople.map((person) => (
+            <article className="person-card" key={person.id}>
+              <h2>{person.name}</h2>
+
+              <dl className="person-card__details">
+                <div>
+                  <dt>Age</dt>
+                  <dd>{person.age}</dd>
+                </div>
+                <div>
+                  <dt>IQ</dt>
+                  <dd>{person.iq}</dd>
+                </div>
+              </dl>
+
+              <button
+                className="person-card__delete"
+                type="button"
+                onClick={() => handleDelete(person.id)}
+                aria-label={`Delete ${person.name}`}
+              >
+                Delete
+              </button>
+            </article>
+          ))}
+        </div>
+
+        {sortedPeople.length === 0 && (
+          <p className="directory__empty">
+            No people match the current filters.
+          </p>
+        )}
       </section>
     </main>
   )

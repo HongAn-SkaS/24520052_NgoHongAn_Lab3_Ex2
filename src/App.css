@@ -81,3 +81,70 @@
   outline: 3px solid #2563eb;
   outline-offset: 2px;
 }
+
+.form-field select {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid #9ca3af;
+  border-radius: 0.5rem;
+  background: #ffffff;
+  color: #111827;
+}
+
+.form-field select:focus-visible {
+  outline: 3px solid #2563eb;
+  outline-offset: 2px;
+}
+
+.directory__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.directory__toolbar p {
+  font-weight: 600;
+}
+
+.directory__toolbar button,
+.person-card__delete {
+  min-height: 2.5rem;
+  padding: 0.5rem 0.875rem;
+  border: 1px solid #9ca3af;
+  border-radius: 0.5rem;
+  background: #ffffff;
+  color: #111827;
+}
+
+.person-card__delete {
+  margin-top: 1rem;
+  border-color: #b91c1c;
+  color: #b91c1c;
+}
+
+.directory__toolbar button:hover,
+.person-card__delete:hover {
+  background: #f3f4f6;
+}
+
+.directory__toolbar button:focus-visible,
+.person-card__delete:focus-visible {
+  outline: 3px solid #2563eb;
+  outline-offset: 2px;
+}
+
+.directory__empty {
+  padding-block: 2rem;
+  text-align: center;
+  color: #4b5563;
+}
+
+@media (max-width: 480px) {
+  .directory__toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
